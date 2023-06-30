@@ -16,7 +16,7 @@ This article shows how to use the testclient tool to verify and test the RTO con
 
 ## <a id="whatis_testclient"></a>What is testclient tool?
 
-The testclient tool (formerly known as rmdstestclient) is a general-purpose Refinitiv Real-Time consumer application. The tool is part of the Refinitiv Real-Time Demo Tools package (aka Infrastructure Tools). The testclient basic functionality is to load a list of RICs from file (or input parameter) and request data of them from Refinitiv Real-Time sources like the RTO, Refinitiv Real-Time Advanced Distribution Server (on-prem ADS),and Real-Time SDK OMM Provider. It supports various Refinitiv Real-Time connection types (RSSL, WebSocket, etc), various Data Domain data (Market Price, Market By Price, Market By Order, etc). This tool is perfect for verifying the connection and subscription.
+The testclient tool (formerly known as rmdstestclient) is a general-purpose Refinitiv Real-Time consumer application. The tool is part of the Refinitiv Real-Time Demo Tools package (aka Infrastructure Tools). The testclient basic functionality is to load a list of RICs from a file (or input parameter) and request data of them from Refinitiv Real-Time sources like the RTO, Refinitiv Real-Time Advanced Distribution Server (on-prem ADS), and Real-Time SDK OMM Provider. It supports various Refinitiv Real-Time connection types (RSSL, WebSocket, etc), and various Data Domain data (Market Price, Market By Price, Market By Order, etc). This tool is perfect for verifying the connection and subscription.
 
 You can download the tools package from the [Developer Portal](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/downloads#refinitiv-real-time-sdk-tools) and [my.refinitiv.com](https://my.refinitiv.com/) (Product family "MDS-Infra" and Products "Infrastructure Tools") websites.
 
@@ -24,11 +24,11 @@ You can download the tools package from the [Developer Portal](https://developer
 
 If you are using the ADS server, this testclient tool is already in the ADS package (under &lt;ADS package&gt;/&lt;platform&gt;/demo folder).
 
-The tools are support Linux platform and [Docker](https://www.docker.com/). The Docker image is available on [refinitivrealtime/infratools](https://hub.docker.com/r/refinitivrealtime/infratools) Docker Hub repository.
+The tools support the Linux platform and [Docker](https://www.docker.com/). The Docker image is available on [refinitivrealtime/infratools](https://hub.docker.com/r/refinitivrealtime/infratools) Docker Hub repository.
 
 ![Alt text](images/02_infratools_docker.png)
 
-I am demonstrating the tool with Docker on Windows OS.
+I am demonstrating the tools with Docker on Windows OS and using the infra tools version 3.7.0.L1.
 
 ## <a id="prerequisite"></a>Python and PyCharm prerequisite
 
@@ -36,13 +36,13 @@ Before I am going further, there is some prerequisite, dependencies, and librari
 
 ### Access to the RTO
 
-This project uses RTO access credential both Version 1 Authentication (Machine ID type), and Version 2 Authentication (Service ID)
+This project uses RTO access credentials for both Version 1 Authentication (Machine ID type) and Version 2 Authentication (Service ID)
 
 Please contact your Refinitiv representative to help you with the RTO account and services.
 
 ### Internet Access
 
-This demonstration use a public internet to connect to RTO.
+This demonstration connects to RTO on AWS via a public internet.
 
 ## Connecting the testclient tool to RTO 
 
@@ -60,7 +60,72 @@ testclient -S ELEKTRON_DD -f <ric file> -authm <oAuthPasswordGrant/oAuthClientCr
 
 **Note**: The libcurl.so must be within LD_LIBRARY_PATH
 
+## Using testclient Docker Image
 
+With Docker, you can set the parameters above to the container's environment variables using the ```--env-file``` parameter as follows.
 
+### Step 1: Create Environment Variables file
+
+Firstly, create a file name *.env* in that folder with the following content:
+
+```
+# RDP Core Credentials
+TOKENURL=https://api.refinitiv.com/auth/oauth2/v1/token
+SERVICEURL=https://api.refinitiv.com/streaming/pricing/v1/
+LOCATION=ap-southeast
+PLUGIN=libreactorConnectionHandler.so
+#PLUGIN=libwebSocketConnectionHandler.so
+USERNAME=<RTO Machine ID>
+RAW_PASSWORD=<RTO Password>
+```
+If you are using the Version 2 Authentication, your *.env* file should have the following content:
+
+```
+TOKENURL=https://api.refinitiv.com/auth/oauth2/v2/token
+SERVICEURL=https://api.refinitiv.com/streaming/pricing/v1/
+LOCATION=ap-southeast
+PLUGIN=libreactorConnectionHandler.so
+#PLUGIN=libwebSocketConnectionHandler.so
+USERNAME=<RTO Client Id>
+RAW_PASSWORD=<RTO Client Secret>
+```
+
+**Caution**: You *should not* share a *.env* file to your peers or commit/push it to the version control. You should add the file to the *.gitignore* file to avoid adding it to version control or public repository accidentally.
+
+Note: If you are using Linux OS, you can set the parameters above in your machine's bash profile like the following example:
+
+```bash
+$>vi ~/.bash_profile 
+...
+export TOKENURL=https://api.refinitiv.com/auth/oauth2/v2/token
+export SERVICEURL=https://api.refinitiv.com/streaming/pricing/v1/
+export LOCATION=ap-southeast
+export PLUGIN=libreactorConnectionHandler.so
+#export PLUGIN=libwebSocketConnectionHandler.so
+export USERNAME=<RTO Client Id>
+export RAW_PASSWORD=<RTO Client Secret>
+...
+$>. ~/.bash_profile #activate the changed
+```
+
+### Step 2: Pull and Create Docker Container
+
+The second step is to run the following [Docker run](https://docs.docker.com/engine/reference/run/) command in a command prompt to pull the infra tools Docker image and run its container.
+
+``` bash
+docker run -it --name infratool --env-file .env refinitivrealtime/infratools:3.7.0.L1
+```
+
+Once the image is pulled and created container successfully, you see the bash command prompt that you are in the infra tools container as follows:
+
+![Alt text](images/03_infratools_docker.png)
+
+This container contains all infra tools files and libraries you need to connect to RTO.
+
+![Alt text](images/04_infratools_docker.png)
+
+### Step 3: Obfuscated Password
+
+The password must first be obfuscated using the supplied *dacsObfuscatePassword* tool.
 
 TBD
