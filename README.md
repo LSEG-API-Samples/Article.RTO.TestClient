@@ -20,13 +20,13 @@ The testclient tool (formerly known as rmdstestclient) is a general-purpose Refi
 
 You can download the tools package from the [Developer Portal](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/downloads#refinitiv-real-time-sdk-tools) and [my.refinitiv.com](https://my.refinitiv.com/) (Product family "MDS-Infra" and Products "Infrastructure Tools") websites.
 
-![Alt text](images/01_infratools.png)
+![figure-1](images/01_infratools.png "infratool download")
 
 If you are using the ADS server, this testclient tool is already in the ADS package (under &lt;ADS package&gt;/&lt;platform&gt;/demo folder).
 
 The tools support the Linux platform and [Docker](https://www.docker.com/). The Docker image is available on [refinitivrealtime/infratools](https://hub.docker.com/r/refinitivrealtime/infratools) Docker Hub repository.
 
-![Alt text](images/02_infratools_docker.png)
+![figure-2](images/02_infratools_docker.png "infratool docker hub")
 
 I am demonstrating the tools with Docker on Windows OS and using the infra tools version 3.7.0.L1.
 
@@ -114,15 +114,17 @@ docker run -it --name infratool --env-file .env refinitivrealtime/infratools:3.7
 
 Once the image is pulled and created container successfully, you see the bash command prompt that you are in the infra tools container as follows:
 
-![Alt text](images/03_infratools_docker.png)
+![figure-3](images/03_infratools_docker.png "infratools Docker")
 
 This container contains all infra tools files and libraries you need to connect to RTO.
 
-![Alt text](images/04_infratools_docker.png)
+![figure-4](images/04_infratools_docker.png "infratools content")
+
+![figure-5](images/05_docker_run.gif "infratools Docker run")
 
 You can use the ``printenv``` command to check all required parameters are already available in the container.
 
-![Alt text](images/04_printenv.png)
+![figure-6](images/06_printenv.png "printenv result")
 
 **Note**: You may be noticed that the ```LD_LIBRARY_PATH``` parameter has been set to the infra tools directly by default. 
 
@@ -138,7 +140,7 @@ Then copy the obfuscated result (not include **OBFUSCATE SUCCESS:** text) that p
 ``` bash
 $>export PASSWORD=<obfuscated password from dacsObfuscatePassword>
 ```
-![Alt text](images/05_obfuscated_pass.png)
+![figure-7](images/07_obfuscated_pass.png "obfuscated password")
 
 Alternatively, you may create a shell script to run the *dacsObfuscatePassword* tool and set the ```PASSWORD``` parameter for you without a manual copy and set the password. The steps are as follows:
 
@@ -165,10 +167,45 @@ docker run -it --name infratool --env-file .env -v <full path>\\script:/opt/dist
 
 Then run the ```. ./script/getObfuscatePassword.sh``` command (please notice a single ```.``` (dot) in front of the command) to set an obfuscated password via the script.
 
-![Alt text](images/06_obfuscated_pass_2.png)
+![figure-8](images/08_obfuscated_pass_2.png "obfuscated password")
+
+![figure-9](images/09_obfuscated_pass_3.gif "obfuscated password")
 
 Now the ```PASSWORD``` parameter is ready for use with the testclient tool.
 
-### Step 4: Run the testclient tool
+### Step 4: Run the testclient tool to test the RSSL connection
+
+That brings us to running the testclient tool. You can run the testclient tool to connect and subscribe to real-time data from the RTO RSSL connection via the following command
+
+#### RTO with Version 1 Authentication account
+
+To use with the Version 1 Authentication credential, the ```TOKENURL``` parameter must be *https://api.refinitiv.com/auth/oauth2/**v1**/token* URL endpoint and the ```authm``` parameter must be *oAuthPasswordGrant* value.
+
+``` bash
+$>testclient -S ELEKTRON_DD -il <ric name> -authm oAuthPasswordGrant -turl $TOKENURL -surl $SERVICEURL -sloc $LOCATION -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
+```
+
+#### RTO with Version 2 Authentication account
+
+To use with the Version 2 Authentication credential, the ```TOKENURL``` parameter must be *https://api.refinitiv.com/auth/oauth2/**v2**/token* URL endpoint and the ```authm``` parameter must be *oAuthClientCred* value.
+
+``` bash
+testclient -S ELEKTRON_DD -il <ric name> -authm oAuthClientCred -turl $TOKENURL -surl $SERVICEURL -sloc $LOCATION -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
+```
+Note: You can specify the RICs file name with ```-f <RICs file name>``` instead of ```-il <ric name>``` parameter.
+
+I am demonstrating with the Version 2 Authentication account below::
+
+![figure-10](images/10_run_testclient_1.gif "run testclient with service discovery")
+
+The commands above use the Service Discovery feature that dynamically connects the testclient tool to the RTO endpoint define in the ```LOCATION``` parameter. If you want to test a connection with a specific endpoint, you can set the endpoint via ```-h``` with RSSL port 14002 via ```-p``` parameters.
+
+``` bash
+testclient -S ELEKTRON_DD -il <ric name> -authm oAuthClientCred -turl $TOKENURL -p 14002 -h <RTO RSSL Endpoint> -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
+```
+
+![figure-11](images/11_run_testclient_2.gif "run testclient with a specific endpoint")
+
+### Step 4.5: Run the testclient tool to test the WebSocket connection
 
 TBD
