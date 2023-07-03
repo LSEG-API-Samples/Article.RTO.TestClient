@@ -100,10 +100,6 @@ $>vi ~/.bash_profile
 export TOKENURL=https://api.refinitiv.com/auth/oauth2/v2/token
 export SERVICEURL=https://api.refinitiv.com/streaming/pricing/v1/
 export LOCATION=ap-southeast
-export PLUGIN=libreactorConnectionHandler.so
-#export PLUGIN=libwebSocketConnectionHandler.so
-export USERNAME=<RTO Client Id>
-export RAW_PASSWORD=<RTO Client Secret>
 ...
 $>. ~/.bash_profile #activate the changed
 ```
@@ -124,8 +120,55 @@ This container contains all infra tools files and libraries you need to connect 
 
 ![Alt text](images/04_infratools_docker.png)
 
+You can use the ``printenv``` command to check all required parameters are already available in the container.
+
+![Alt text](images/04_printenv.png)
+
+**Note**: You may be noticed that the ```LD_LIBRARY_PATH``` parameter has been set to the infra tools directly by default. 
+
 ### Step 3: Obfuscated Password
 
-The password must first be obfuscated using the supplied *dacsObfuscatePassword* tool.
+The password must first be obfuscated using the supplied *dacsObfuscatePassword* tool with the following command.
+
+``` bash
+$>./dacsObfuscatePassword -e $RAW_PASSWORD
+```
+Then copy the obfuscated result (not include **OBFUSCATE SUCCESS:** text) that prints on the screen and set it as the ```PASSWORD``` parameter with the following command
+
+``` bash
+$>export PASSWORD=<obfuscated password from dacsObfuscatePassword>
+```
+![Alt text](images/05_obfuscated_pass.png)
+
+Alternatively, you may create a shell script to run the *dacsObfuscatePassword* tool and set the ```PASSWORD``` parameter for you without a manual copy and set the password. The steps are as follows:
+
+Firstly, create a shell script named ```getObfuscatePassword.sh``` in a ```script``` folder with the following content:
+
+``` bash
+#!/bin/sh
+
+#obfuscated password
+result=$(./dacsObfuscatePassword -e $RAW_PASSWORD)
+#get only obfuscated password from the result
+IFS=":" read -ra ADDR <<< $result
+#print result, just for checking
+#echo "obfuscated password is ${ADDR[1]}"
+echo "obfuscated RTO password success, setting it to environment variable named \$PASSWORD"
+export PASSWORD=${ADDR[1]}
+```
+
+If you are using Docker, you can mount this script folder into a container via the following docker run command:
+
+``` bash
+docker run -it --name infratool --env-file .env -v <full path>\\script:/opt/distribution/script refinitivrealtime/infratools:3.7.0.L1
+```
+
+Then run the ```. ./script/getObfuscatePassword.sh``` command (please notice a single ```.``` (dot) in front of the command) to set an obfuscated password via the script.
+
+![Alt text](images/06_obfuscated_pass_2.png)
+
+Now the ```PASSWORD``` parameter is ready for use with the testclient tool.
+
+### Step 4: Run the testclient tool
 
 TBD
