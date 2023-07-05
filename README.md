@@ -239,6 +239,46 @@ That covers all I wanted to say about testing the RTO connection using the testc
 
 ## Bonus: How to check RTO credentials with cURL
 
-As I said earlier the credential test is very simple via a few basic cURL commands
+As I said earlier the credential test is very simple via a few basic cURL commands. The first command is checking your RTO credentials with the RDP Authentication service as follows:
+
+### Version 1 Authentication
+
+``` bash
+curl  -X POST \
+  'https://api.refinitiv.com:443/auth/oauth2/v1/token' \
+  --header 'Accept: */*' \
+  --header 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'username=<Machine ID>' \
+  --data-urlencode 'password=<RTO Password>' \
+  --data-urlencode 'client_id=<App Key>' \
+  --data-urlencode 'grant_type=password' \
+  --data-urlencode 'takeExclusiveSignOnControl=true' \
+  --data-urlencode 'scope=trapi'
+```
+
+### Version 2 Authentication
+
+``` bash
+curl  -X POST \
+  'https://api.refinitiv.com:443/auth/oauth2/v2/token' \
+  --header 'Accept: */*' \
+  --header 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'client_secret=<Client Secret/Password>' \
+  --data-urlencode 'client_id=<Client Id>' \
+  --data-urlencode 'grant_type=client_credentials' \
+  --data-urlencode 'scope=trapi'
+```
+Once the HTTP request is successful, you get the RDP/RTO token information based on the version of your RDP Authentication service:
+- Version 1 authentication, see [RDP Authorization - All about tokens tutorial](https://developers.refinitiv.com/en/api-catalog/refinitiv-data-platform/refinitiv-data-platform-apis/tutorials#authorization-all-about-tokens)
+- Version 2 authentication, see [Getting Started with Version 2 Authentication for Refinitiv Real-Time and Data Platform: Overview](https://developers.refinitiv.com/en/article-catalog/article/getting-started-with-version-2-authentication-for-refinitiv-real) article
+
+That brings us to the next RDP service, the Service Discovery. To retrieve VIPs, an application must call the URL *https://api.refinitiv.com/streaming/pricing/v1/* API endpoint with the access token from the RDP Authentication Service in the request message header. The Service Discovery supports both V1 and V2 access tokens with the same HTTP GET request message.
+
+``` bash
+curl  -X GET \
+  'https://api.refinitiv.com:443/streaming/pricing/v1/' \
+  --header 'Accept: */*' \
+  --header 'Authorization: Bearer <access token>'
+```
 
 TBD
