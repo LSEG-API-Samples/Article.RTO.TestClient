@@ -280,5 +280,10 @@ curl  -X GET \
   --header 'Accept: */*' \
   --header 'Authorization: Bearer <access token>'
 ```
+## Summary and Next Step
+
+That brings me to the end of this article. That brings me to the end of this article. The testclient tool lets developers, and system admin test RTO connection and subscription with a few Linux/docker commands. The tool lets you test RTO credentials and connection without any SDK/API set up in your environment. It is helpful for isolating and verifying between the API and RTO server-side when you encounters a connection problem with RTO.
+
+
 
 TBD
