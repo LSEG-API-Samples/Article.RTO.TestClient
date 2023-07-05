@@ -54,7 +54,7 @@ testclient -S ELEKTRON_DD -f <ric file> -authm <oAuthPasswordGrant/oAuthClientCr
 - tokenurl=*https://api.refinitiv.com/auth/oauth2/v1/token* (or *https://api.refinitiv.com/auth/oauth2/v2/token*)
 - serviceurl=*https://api.refinitiv.com/streaming/pricing/v1/*
 - location=RTO location (example: *us-east*, *ap-southeast*, please refer to the [Refinitiv Real-Time - Optimized Installation and configuration for client use](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/documentation#refinitiv-real-time-optimized-install-and-config-guide))
-- plugin = *libreactorConnectionHandler.so* (RSSL) or *libwebSocketConnectionHandler.so* (WebSocket)
+- plugin = **libreactorConnectionHandler.so** (RSSL) or **libwebSocketConnectionHandler.so** (WebSocket)
 - username = *Machine ID* or *Version 2 Client Id*
 - password = obfuscated of the *RTO password* (either Version 1 password or Version 2 Client Secret) using **dacsObfuscatePassword** tool
 
@@ -179,7 +179,7 @@ That brings us to running the testclient tool. You can run the testclient tool t
 
 #### RTO with Version 1 Authentication account
 
-To use with the Version 1 Authentication credential, the ```TOKENURL``` parameter must be *https://api.refinitiv.com/auth/oauth2/**v1**/token* URL endpoint and the ```authm``` parameter must be *oAuthPasswordGrant* value.
+To use with the Version 1 Authentication credential, the ```TOKENURL``` parameter must be *https://api.refinitiv.com/auth/oauth2/**v1**/token* URL endpoint and the ```authm``` parameter must be *oAuthPasswordGrant* value. Please note that the Version 1's username is the Machine ID account (GE-A-XXXXXXXX-X-XXXX).
 
 ``` bash
 $>testclient -S ELEKTRON_DD -il <ric name> -authm oAuthPasswordGrant -turl $TOKENURL -surl $SERVICEURL -sloc $LOCATION -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
@@ -187,10 +187,10 @@ $>testclient -S ELEKTRON_DD -il <ric name> -authm oAuthPasswordGrant -turl $TOKE
 
 #### RTO with Version 2 Authentication account
 
-To use with the Version 2 Authentication credential, the ```TOKENURL``` parameter must be *https://api.refinitiv.com/auth/oauth2/**v2**/token* URL endpoint and the ```authm``` parameter must be *oAuthClientCred* value.
+To use with the Version 2 Authentication credential, the ```TOKENURL``` parameter must be *https://api.refinitiv.com/auth/oauth2/**v2**/token* URL endpoint and the ```authm``` parameter must be *oAuthClientCred* value. Please note that the Version 1's username is the Service ID account (GE-XXXXXXXXXXXX).
 
 ``` bash
-testclient -S ELEKTRON_DD -il <ric name> -authm oAuthClientCred -turl $TOKENURL -surl $SERVICEURL -sloc $LOCATION -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
+$>testclient -S ELEKTRON_DD -il <ric name> -authm oAuthClientCred -turl $TOKENURL -surl $SERVICEURL -sloc $LOCATION -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
 ```
 Note: You can specify the RICs file name with ```-f <RICs file name>``` instead of ```-il <ric name>``` parameter.
 
@@ -198,14 +198,47 @@ I am demonstrating with the Version 2 Authentication account below::
 
 ![figure-10](images/10_run_testclient_1.gif "run testclient with service discovery")
 
-The commands above use the Service Discovery feature that dynamically connects the testclient tool to the RTO endpoint define in the ```LOCATION``` parameter. If you want to test a connection with a specific endpoint, you can set the endpoint via ```-h``` with RSSL port 14002 via ```-p``` parameters.
+The commands above use the Service Discovery feature that dynamically connects the testclient tool to the RTO endpoint define in the ```LOCATION``` parameter. If you want to test a connection with a specific endpoint, you can set the endpoint via ```-h``` with RSSL port **14002** via ```-p``` parameters.
 
 ``` bash
-testclient -S ELEKTRON_DD -il <ric name> -authm oAuthClientCred -turl $TOKENURL -p 14002 -h <RTO RSSL Endpoint> -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
+$>testclient -S ELEKTRON_DD -il <ric name> -authm oAuthClientCred -turl $TOKENURL -p 14002 -h <RTO RSSL Endpoint> -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
 ```
-
 ![figure-11](images/11_run_testclient_2.gif "run testclient with a specific endpoint")
 
+Note: RTO Hosts are based on each user's permission. Please check with your Refinitiv representative. To retrieve a valid list of RTO endpoints based on your assigned tier, refer to the DNS Names within the Current Endpoints section outlined in the the [Refinitiv Real-Time - Optimized Installation and configuration for client use](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/documentation#refinitiv-real-time-optimized-install-and-config-guide) document.
+
 ### Step 4.5: Run the testclient tool to test the WebSocket connection
+
+My next point is a WebSocket connection. You can just change the ```PLUGIN``` variable to **libwebSocketConnectionHandler.so** and then use the same testclient command to connect to the RTO WebSocket endpoint.
+
+``` bash
+$>export PLUGIN=libwebSocketConnectionHandler.so
+
+# Connecting to Version 1 Authentication (TOKENURL=https://api.refinitiv.com/auth/oauth2/v1/token)
+$>testclient -S ELEKTRON_DD -il <ric name> -authm oAuthPasswordGrant -turl $TOKENURL -surl $SERVICEURL -sloc $LOCATION -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
+
+# Connecting to Version 1 Authentication (TOKENURL=https://api.refinitiv.com/auth/oauth2/v2/token)
+$>testclient -S ELEKTRON_DD -il <ric name> -authm oAuthClientCred -turl $TOKENURL -surl $SERVICEURL -sloc $LOCATION -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
+```
+Note: Please see more detail about the different between Version 2 and Version 1 at *#Step 4* above
+
+I am demonstrating the Version 2 authentication below
+
+![figure-12](images/12_run_testclient_ws.gif "run testclient to WS")
+
+If you want to test a connection with a specific WebSocket endpoint, you can set the endpoint via ```-h``` with WebSocket port **443** via ```-p``` parameters like the following example:
+
+``` bash
+$>export PLUGIN=libwebSocketConnectionHandler.so
+
+$>testclient -S ELEKTRON_DD -il <RIC name> -authm oAuthClientCred -turl $TOKENURL -p 443 -h <WebSocket Endpoint> -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
+```
+Note: RTO Hosts are based on each user's permission. Please check with your Refinitiv representative. To retrieve a valid list of RTO endpoints based on your assigned tier, refer to the DNS Names within the Current Endpoints section outlined in the [Refinitiv Real-Time - Optimized Installation and configuration for client use](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/documentation#refinitiv-real-time-optimized-install-and-config-guide) document.
+
+That covers all I wanted to say about testing the RTO connection using the testclient tool. 
+
+## Bonus: How to check RTO credentials with cURL
+
+As I said earlier the credential test is very simple via a few basic cURL commands
 
 TBD
