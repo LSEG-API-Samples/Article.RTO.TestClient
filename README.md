@@ -282,8 +282,37 @@ curl  -X GET \
 ```
 ## Summary and Next Step
 
-That brings me to the end of this article. That brings me to the end of this article. The testclient tool lets developers, and system admin test RTO connection and subscription with a few Linux/docker commands. The tool lets you test RTO credentials and connection without any SDK/API set up in your environment. It is helpful for isolating and verifying between the API and RTO server-side when you encounters a connection problem with RTO.
+That brings me to the end of this article. The testclient tool lets developers, and system admin test RTO connection and subscription with a few Linux/docker commands. The tool simplified RTO credentials and connection tests without any SDK/API setup. It helps you troubleshoot connection/subscription issues by isolating between the RTO server side, API/SDK, and network.
+
+### If you are developers
+
+Once the testclient connects and consumes data from the RTO succeed, it means your credentials and environment are ready to connect to the RTO. You can continue with the Refinitiv Real-Time SDK or the WebSocket API RTO examples based on your preference as follows:
+- [RTSDK C# Quick Start page](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/refinitiv-real-time-csharp-sdk/quick-start)
+- [RTSDK C/C++ Quick Start page](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/quick-start)
+- [RTSDK Java Quick Start page](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/quick-start#rtsdk-ema-eta-quick-start-connecting-to-refinitiv-real-time-optimized)
+- [WebSocket API Quick Start page](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/refinitiv-websocket-api/quick-start#connecting-to-refinitiv-real-time-optimized)
+
+### If you are developers
+
+Once the testclient connects and consumes data from the RTO succeed, you can configure your RTDS components such as Advanced Distribution Hub (ADH), Advanced Distribution Server (ADS), or Refinitiv Real-Time Connector (RTC) to connect to the RTO as the upstream. Please contact the Refinitiv Real-Time support team if you need more information about the RTDS configurations with RTO.
+
+The testclient tool function is not limited to just verifying your credentials and connection. It can measure latency in the Refinitiv Real-Time Distribution System and has a lot of subscription features (such as batch and view request, etc) to match your test requirements. Please find more detail about the tool's parameters and commands from the Refinitiv Real-Time Demo Tools Operation Manual in the Infra Tools package.
+
+## <a id="ref"></a>References
+
+For further details, please check out the following resources:
+
+* [Refinitiv Real-Time SDK Family](https://developers.refinitiv.com/en/use-cases-catalog/refinitiv-real-time) page on the [Refinitiv Developer Community](https://developers.refinitiv.com/) website
+* [WebSocket API](https://developers.refinitiv.com/en/api-catalog/elektron/refinitiv-websocket-api) page
+* [Changes to Customer Access and Identity Management: Refinitiv Real-Time - Optimized](https://developers.refinitiv.com/en/article-catalog/article/changes-to-customer-access-and-identity-management--refinitiv-re)
+* [Infrastructure Tools Download page](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/downloads#refinitiv-real-time-sdk-tools)
+* [Infrastructure Tools Download page at my.refinitiv.com](https://my.refinitiv.com/)
+* [Infrastructure Tools Docker Hub page](https://hub.docker.com/r/refinitivrealtime/infratools)
+* [Refinitiv Real-Time - Optimized Installation and configuration for client use](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/documentation#refinitiv-real-time-optimized-install-and-config-guide) document
+* [How to test RTDS WebSocket connection with the testclient tool](https://developers.refinitiv.com/en/article-catalog/article/how-test-elektron-websocket-connection-rmdstestclient-tool) article
+* [Testing Real-time Streaming applications with Docker & Refinitiv Real-Time Connector (part 1)](https://developers.refinitiv.com/en/article-catalog/article/testing-real-time-apps-with-docker-and-real-time-connector) article
+* [Testing Real-time Streaming applications with Docker & Refinitiv Real-Time Connector (part 2)](https://developers.refinitiv.com/en/article-catalog/article/testing-real-time-apps-with-docker-and-real-time-connector-2) article
+* [Configuring adspop docker to connect to Refinitiv Real-Time Optimized](https://developers.refinitiv.com/en/article-catalog/article/introduction-to-the-refinitivrealtime-adspop-docker-image) article
 
 
-
-TBD
+For any question related to this article or the RTO, please use the Developer Community [Q&A Forum](https://community.developers.refinitiv.com/).
