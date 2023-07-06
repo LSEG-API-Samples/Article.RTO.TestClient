@@ -8,9 +8,9 @@
 
 [Refinitiv Data Platform (RDP)](https://developers.refinitiv.com/en/api-catalog/refinitiv-data-platform/refinitiv-data-platform-apis) gives you seamless and holistic access to all of the Refinitiv content (whether real-time or non-real-time, analytics or alternative datasets), commingled with your content, enriching, integrating, and distributing the data through a single interface, delivered wherever you need it. As part of the Refinitiv Data Platform, the Refinitiv Real-Time - Optimized (RTO) gives you access to best-in-class Real-Time market data delivered in the cloud.  Refinitiv Real-Time - Optimized is a new delivery mechanism for RDP, using the AWS (Amazon Web Services) cloud.
 
-When you got the RTO access credential (either V1 or [V2 Authentication](https://developers.refinitiv.com/en/article-catalog/article/changes-to-customer-access-and-identity-management--refinitiv-re)), you surely want to test the credential and the connection to verify if your environment (Dev, UAT, Production, etc) can access to RTO. The credential test is very simple via few basic cURL commands. However, to real-time streaming connection test is much more complex and you need to run RTSDK RTO Quick Start example application ([C/C++](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/quick-start), [Java](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/quick-start#rtsdk-ema-eta-quick-start-connecting-to-refinitiv-real-time-optimized), [C#](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/refinitiv-real-time-csharp-sdk/quick-start)) or the [WebSocket API RTO examples](https://github.com/Refinitiv/websocket-api/tree/master/Applications/Examples/RDP).
+When you got the RTO access credential (either V1 or [V2 Authentication](https://developers.refinitiv.com/en/article-catalog/article/changes-to-customer-access-and-identity-management--refinitiv-re)), you surely want to test the credential and the connection to verify if your environment (Dev, UAT, Production, etc) can access RTO. The credential test is very simple via a few basic cURL commands. However, to real-time streaming connection test is much more complex and you need to run the RTSDK RTO Quick Start example application ([C/C++](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/quick-start), [Java](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/quick-start#rtsdk-ema-eta-quick-start-connecting-to-refinitiv-real-time-optimized), [C#](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/refinitiv-real-time-csharp-sdk/quick-start)) or the [WebSocket API RTO examples](https://github.com/Refinitiv/websocket-api/tree/master/Applications/Examples/RDP).
 
-If you are the developers, using those RTSDK/WebSocket API examples are quite straightforward. However, if you are the System Admin or *just want to test the RTO connection on your environment* setting up the SDK or API environment might be too complicate for what you need. Fortunately, there is the **Refinitiv Real-Time's testclient tool** that can connect and consume real-time data from RTO in a simple command.
+If you are the developer, using those RTSDK/WebSocket API examples is quite straightforward. However, if you are the System Admin or *just want to test the RTO connection on your environment* setting up the SDK or API environment might be too complicated for what you need. Fortunately, there is the **Refinitiv Real-Time's testclient tool** that can connect and consume real-time data from RTO in a simple command.
 
 This article shows how to use the testclient tool to verify and test the RTO connection (both RSSL and WebSocket) and subscription.
 
@@ -51,7 +51,7 @@ This demonstration connects to RTO on AWS via a public internet.
 That brings us to how to connect the testclient tool to RTO. The testclient tools can connect to the RTO with the following basic command and setting.
 
 ``` bash
-testclient -S ELEKTRON_DD -f <ric file> -authm <oAuthPasswordGrant/oAuthClientCred> -turl $tokenurl -surl $serviceurl -sloc $location -phost $proxyhost -pport $proxyport -ct plugin -pluginName $plugin -u $username -pw $password -rrt -tss -tunnel ssl -I 1
+$>testclient -S ELEKTRON_DD -f <ric file> -authm <oAuthPasswordGrant/oAuthClientCred> -turl $tokenurl -surl $serviceurl -sloc $location -phost $proxyhost -pport $proxyport -ct plugin -pluginName $plugin -u $username -pw $password -rrt -tss -tunnel ssl -I 1
 ```
 - tokenurl=*https://api.refinitiv.com/auth/oauth2/v1/token* (or *https://api.refinitiv.com/auth/oauth2/v2/token*)
 - serviceurl=*https://api.refinitiv.com/streaming/pricing/v1/*
@@ -167,7 +167,7 @@ If you are using Docker, you can mount this script folder into a container via t
 docker run -it --name infratool --env-file .env -v <full path>\\script:/opt/distribution/script refinitivrealtime/infratools:3.7.0.L1
 ```
 
-Then run the ```. ./script/getObfuscatePassword.sh``` command (please notice a single ```.``` (dot) in front of the command) to set an obfuscated password via the script.
+Then run the ```. ./script/getObfuscatePassword.sh``` command (please notice a single ```.``` (dot) and ```space```  in front of the command) to set an obfuscated password via the script.
 
 ![figure-8](images/08_obfuscated_pass_2.png "obfuscated password")
 
@@ -221,7 +221,7 @@ $>export PLUGIN=libwebSocketConnectionHandler.so
 # Connecting to Version 1 Authentication (TOKENURL=https://api.refinitiv.com/auth/oauth2/v1/token)
 $>testclient -S ELEKTRON_DD -il <ric name> -authm oAuthPasswordGrant -turl $TOKENURL -surl $SERVICEURL -sloc $LOCATION -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
 
-# Connecting to Version 1 Authentication (TOKENURL=https://api.refinitiv.com/auth/oauth2/v2/token)
+# Connecting to Version 2 Authentication (TOKENURL=https://api.refinitiv.com/auth/oauth2/v2/token)
 $>testclient -S ELEKTRON_DD -il <ric name> -authm oAuthClientCred -turl $TOKENURL -surl $SERVICEURL -sloc $LOCATION -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
 ```
 Note: Please see more detail about the different between Version 2 and Version 1 at *#Step 4* above
@@ -288,7 +288,7 @@ curl  -X GET \
 
 That brings me to the end of this article. The testclient tool lets developers, and system admin test RTO connection and subscription with a few Linux/docker commands. The tool simplified RTO credentials and connection tests without any SDK/API setup. It helps you troubleshoot connection/subscription issues by isolating between the RTO server side, API/SDK, and network.
 
-### If you are developers
+### If you are developer
 
 Once the testclient connects and consumes data from the RTO succeed, it means your credentials and environment are ready to connect to the RTO. You can continue with the Refinitiv Real-Time SDK or the WebSocket API RTO examples based on your preference as follows:
 - [RTSDK C# Quick Start page](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/refinitiv-real-time-csharp-sdk/quick-start)
@@ -296,7 +296,7 @@ Once the testclient connects and consumes data from the RTO succeed, it means yo
 - [RTSDK Java Quick Start page](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/quick-start#rtsdk-ema-eta-quick-start-connecting-to-refinitiv-real-time-optimized)
 - [WebSocket API Quick Start page](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/refinitiv-websocket-api/quick-start#connecting-to-refinitiv-real-time-optimized)
 
-### If you are developers
+### If you are a system/market data admin
 
 Once the testclient connects and consumes data from the RTO succeed, you can configure your RTDS components such as Advanced Distribution Hub (ADH), Advanced Distribution Server (ADS), or Refinitiv Real-Time Connector (RTC) to connect to the RTO as the upstream. Please contact the Refinitiv Real-Time support team if you need more information about the RTDS configurations with RTO.
 
@@ -317,5 +317,6 @@ For further details, please check out the following resources:
 * [Testing Real-time Streaming applications with Docker & Refinitiv Real-Time Connector (part 1)](https://developers.refinitiv.com/en/article-catalog/article/testing-real-time-apps-with-docker-and-real-time-connector) article
 * [Testing Real-time Streaming applications with Docker & Refinitiv Real-Time Connector (part 2)](https://developers.refinitiv.com/en/article-catalog/article/testing-real-time-apps-with-docker-and-real-time-connector-2) article
 * [Configuring adspop docker to connect to Refinitiv Real-Time Optimized](https://developers.refinitiv.com/en/article-catalog/article/introduction-to-the-refinitivrealtime-adspop-docker-image) article
+* [Learn Refinitiv WebSocket APIs with Postman](https://developers.refinitiv.com/en/article-catalog/article/learn-refinitiv-websocket-apis-with-postman) article
 
-For any question related to this article or the RTO, please use the Developer Community [Q&A Forum](https://community.developers.refinitiv.com/).
+For any questions related to this article or the RTO, please use the Developer Community [Q&A Forum](https://community.developers.refinitiv.com/).
