@@ -124,7 +124,7 @@ This container contains all infra tools files and libraries you need to connect 
 
 ![figure-5](images/05_docker_run.gif "infratools Docker run")
 
-You can use the ``printenv``` command to check all required parameters are already available in the container.
+You can use the ```printenv``` command to check all required parameters are already available in the container.
 
 ![figure-6](images/06_printenv.png "printenv result")
 
