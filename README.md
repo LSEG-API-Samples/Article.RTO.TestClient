@@ -16,7 +16,7 @@ This article shows how to use the testclient tool to verify and test the RTO con
 
 ## <a id="whatis_testclient"></a>What is testclient tool?
 
-The testclient tool (formerly known as rmdstestclient) is a general-purpose Refinitiv Real-Time consumer application. The tool is part of the Refinitiv Real-Time Demo Tools package (aka Infrastructure Tools). The testclient basic functionality is to load a list of RICs from a file (or input parameter) and request data of them from Refinitiv Real-Time sources like the RTO, Refinitiv Real-Time Advanced Distribution Server (on-prem ADS), and Real-Time SDK OMM Provider. It supports various Refinitiv Real-Time connection types (RSSL, WebSocket, etc), and various Data Domain data (Market Price, Market By Price, Market By Order, etc). This tool is perfect for verifying the connection and subscription.
+So, I will start off with a brief detail of the testclient tool. The testclient tool (formerly known as rmdstestclient) is a general-purpose Refinitiv Real-Time consumer application. The tool is part of the Refinitiv Real-Time Demo Tools package (aka Infrastructure Tools). The testclient basic functionality is to load a list of RICs from a file (or input parameter) and request data of them from Refinitiv Real-Time sources like the RTO, Refinitiv Real-Time Advanced Distribution Server (on-prem ADS), and Real-Time SDK OMM Provider. It supports various Refinitiv Real-Time connection types (RSSL, WebSocket, etc), and various Data Domain data (Market Price, Market By Price, Market By Order, etc). This tool is perfect for verifying the connection and subscription.
 
 You can download the tools package from the [Developer Portal](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-cc/downloads#refinitiv-real-time-sdk-tools) and [my.refinitiv.com](https://my.refinitiv.com/) (Product family "MDS-Infra" and Products "Infrastructure Tools") websites.
 
@@ -30,7 +30,9 @@ The tools support the Linux platform and [Docker](https://www.docker.com/). The 
 
 I am demonstrating the tools with Docker on Windows OS and using the infra tools version 3.7.0.L1.
 
-## <a id="prerequisite"></a>Python and PyCharm prerequisite
+That covers an introduction to the testclient tool.
+
+## <a id="prerequisite"></a>Prerequisite
 
 Before I am going further, there is some prerequisite, dependencies, and libraries that the project is needed.
 
@@ -44,9 +46,9 @@ Please contact your Refinitiv representative to help you with the RTO account an
 
 This demonstration connects to RTO on AWS via a public internet.
 
-## Connecting the testclient tool to RTO 
+## <a id="connect_rto_basic"></a>Connecting the testclient tool to RTO 
 
-By default, the testclient tools can connect to the RTO with the following basic command and setting.
+That brings us to how to connect the testclient tool to RTO. The testclient tools can connect to the RTO with the following basic command and setting.
 
 ``` bash
 testclient -S ELEKTRON_DD -f <ric file> -authm <oAuthPasswordGrant/oAuthClientCred> -turl $tokenurl -surl $serviceurl -sloc $location -phost $proxyhost -pport $proxyport -ct plugin -pluginName $plugin -u $username -pw $password -rrt -tss -tunnel ssl -I 1
@@ -60,9 +62,9 @@ testclient -S ELEKTRON_DD -f <ric file> -authm <oAuthPasswordGrant/oAuthClientCr
 
 **Note**: The libcurl.so must be within LD_LIBRARY_PATH
 
-## Using testclient Docker Image
+## <a id="step_by_step"></a>Testclient Tool Step-By-Step 
 
-With Docker, you can set the parameters above to the container's environment variables using the ```--env-file``` parameter as follows.
+Moving on to the next topic, a step-by-step guide to use the testclient tool command above easier. With Docker, you can set the parameters above to the container's environment variables using the ```--env-file``` parameter as follows.
 
 ### Step 1: Create Environment Variables file
 
@@ -207,6 +209,8 @@ $>testclient -S ELEKTRON_DD -il <ric name> -authm oAuthClientCred -turl $TOKENUR
 
 Note: RTO Hosts are based on each user's permission. Please check with your Refinitiv representative. To retrieve a valid list of RTO endpoints based on your assigned tier, refer to the DNS Names within the Current Endpoints section outlined in the the [Refinitiv Real-Time - Optimized Installation and configuration for client use](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/documentation#refinitiv-real-time-optimized-install-and-config-guide) document.
 
+That covers the RSSL connection test with RTO.
+
 ### Step 4.5: Run the testclient tool to test the WebSocket connection
 
 My next point is a WebSocket connection. You can just change the ```PLUGIN``` variable to **libwebSocketConnectionHandler.so** and then use the same testclient command to connect to the RTO WebSocket endpoint.
@@ -237,7 +241,7 @@ Note: RTO Hosts are based on each user's permission. Please check with your Refi
 
 That covers all I wanted to say about testing the RTO connection using the testclient tool. 
 
-## Bonus: How to check RTO credentials with cURL
+## <a id="rdp_curl_test"></a>Bonus: How to check RTO credentials with cURL
 
 As I said earlier the credential test is very simple via a few basic cURL commands. The first command is checking your RTO credentials with the RDP Authentication service as follows:
 
@@ -280,7 +284,7 @@ curl  -X GET \
   --header 'Accept: */*' \
   --header 'Authorization: Bearer <access token>'
 ```
-## Summary and Next Step
+## <a id="summary"></a>Summary and Next Step
 
 That brings me to the end of this article. The testclient tool lets developers, and system admin test RTO connection and subscription with a few Linux/docker commands. The tool simplified RTO credentials and connection tests without any SDK/API setup. It helps you troubleshoot connection/subscription issues by isolating between the RTO server side, API/SDK, and network.
 
@@ -298,7 +302,7 @@ Once the testclient connects and consumes data from the RTO succeed, you can con
 
 The testclient tool function is not limited to just verifying your credentials and connection. It can measure latency in the Refinitiv Real-Time Distribution System and has a lot of subscription features (such as batch and view request, etc) to match your test requirements. Please find more detail about the tool's parameters and commands from the Refinitiv Real-Time Demo Tools Operation Manual in the Infra Tools package.
 
-## <a id="ref"></a>References
+## <a id="references"></a>References
 
 For further details, please check out the following resources:
 
@@ -313,6 +317,5 @@ For further details, please check out the following resources:
 * [Testing Real-time Streaming applications with Docker & Refinitiv Real-Time Connector (part 1)](https://developers.refinitiv.com/en/article-catalog/article/testing-real-time-apps-with-docker-and-real-time-connector) article
 * [Testing Real-time Streaming applications with Docker & Refinitiv Real-Time Connector (part 2)](https://developers.refinitiv.com/en/article-catalog/article/testing-real-time-apps-with-docker-and-real-time-connector-2) article
 * [Configuring adspop docker to connect to Refinitiv Real-Time Optimized](https://developers.refinitiv.com/en/article-catalog/article/introduction-to-the-refinitivrealtime-adspop-docker-image) article
-
 
 For any question related to this article or the RTO, please use the Developer Community [Q&A Forum](https://community.developers.refinitiv.com/).
