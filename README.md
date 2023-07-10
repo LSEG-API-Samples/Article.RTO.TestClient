@@ -51,7 +51,7 @@ This demonstration connects to RTO on AWS via a public internet.
 That brings us to how to connect the testclient tool to RTO. The testclient tools can connect to the RTO with the following basic command and setting.
 
 ``` bash
-$>testclient -S ELEKTRON_DD -f <ric file> -authm <oAuthPasswordGrant/oAuthClientCred> -turl $tokenurl -surl $serviceurl -sloc $location -phost $proxyhost -pport $proxyport -ct plugin -pluginName $plugin -u $username -pw $password -rrt -tss -tunnel ssl -I 1
+testclient -S ELEKTRON_DD -f <ric file> -authm <oAuthPasswordGrant/oAuthClientCred> -turl $tokenurl -surl $serviceurl -sloc $location -phost $proxyhost -pport $proxyport -ct plugin -pluginName $plugin -u $username -pw $password -rrt -tss -tunnel ssl -I 1
 ```
 - tokenurl=*https://api.refinitiv.com/auth/oauth2/v1/token* (or *https://api.refinitiv.com/auth/oauth2/v2/token*)
 - serviceurl=*https://api.refinitiv.com/streaming/pricing/v1/*
@@ -72,38 +72,36 @@ Firstly, create a file name *.env* in that folder with the following content:
 
 ```
 # RDP Core Credentials
-TOKENURL=https://api.refinitiv.com/auth/oauth2/v1/token
+TOKENURL_V1=https://api.refinitiv.com/auth/oauth2/v1/token
+TOKENURL_V2=https://api.refinitiv.com/auth/oauth2/v2/token
 SERVICEURL=https://api.refinitiv.com/streaming/pricing/v1/
 LOCATION=ap-southeast
-PLUGIN=libreactorConnectionHandler.so
-#PLUGIN=libwebSocketConnectionHandler.so
-USERNAME=<RTO Machine ID>
-RAW_PASSWORD=<RTO Password>
-```
-If you are using the Version 2 Authentication, your *.env* file should have the following content:
+REACTOR_PLUGIN=libreactorConnectionHandler.so
+WEBSOCKET_PLUGIN=libwebSocketConnectionHandler.so
 
+#Authentication V1
+USERNAME=<RTO Username V1>
+RAW_PASSWORD=<RTO Password V1>
+
+#Authentication V2
+CLIENT_ID=<Client ID V2>
+RAW_CLIENT_SECRET=<Client Secret V2>
 ```
-TOKENURL=https://api.refinitiv.com/auth/oauth2/v2/token
-SERVICEURL=https://api.refinitiv.com/streaming/pricing/v1/
-LOCATION=ap-southeast
-PLUGIN=libreactorConnectionHandler.so
-#PLUGIN=libwebSocketConnectionHandler.so
-USERNAME=<RTO Client Id>
-RAW_PASSWORD=<RTO Client Secret>
-```
+Please note that the environment variable file above contains the V1 and V2 Authentication. If you have only V1 or V2, please change the file based on your preference.
 
 **Caution**: You *should not* share a *.env* file to your peers or commit/push it to the version control. You should add the file to the *.gitignore* file to avoid adding it to version control or public repository accidentally.
 
-Note: If you are using Linux OS, you can set the parameters above in your machine's bash profile like the following example:
+If you are using Linux OS, you can set the parameters above in your machine's bash profile like the following example:
 
 ```bash
-$>vi ~/.bash_profile 
+vi ~/.bash_profile 
 ...
-export TOKENURL=https://api.refinitiv.com/auth/oauth2/v2/token
+export TOKENURL_V1=https://api.refinitiv.com/auth/oauth2/v1/token
+export TOKENURL_V2=https://api.refinitiv.com/auth/oauth2/v2/token
 export SERVICEURL=https://api.refinitiv.com/streaming/pricing/v1/
 export LOCATION=ap-southeast
 ...
-$>. ~/.bash_profile #activate the changed
+. ~/.bash_profile #activate the changed
 ```
 
 ### Step 2: Pull and Create Docker Container
@@ -135,31 +133,52 @@ You can use the ```printenv``` command to check all required parameters are alre
 The password must first be obfuscated using the supplied *dacsObfuscatePassword* tool with the following command.
 
 ``` bash
-$>./dacsObfuscatePassword -e $RAW_PASSWORD
+#V1
+./dacsObfuscatePassword -e $RAW_PASSWORD
+
+#V2
+./dacsObfuscatePassword -e $RAW_CLIENT_SECRET
 ```
-Then copy the obfuscated result (not include **OBFUSCATE SUCCESS:** text) that prints on the screen and set it as the ```PASSWORD``` parameter with the following command
+Then copy the obfuscated result (not include **OBFUSCATE SUCCESS:** text) that prints on the screen and set it as the ```PASSWORD``` parameter (or ```CLIENT_SECRET``` for V2 Authentication) with the following command
 
 ``` bash
-$>export PASSWORD=<obfuscated password from dacsObfuscatePassword>
+#V1
+export PASSWORD=<obfuscated password from dacsObfuscatePassword>
+
+#V2
+export CLIENT_SECRET=<obfuscated client_secret from dacsObfuscatePassword>
 ```
 ![figure-7](images/07_obfuscated_pass.png "obfuscated password")
 
-Alternatively, you may create a shell script to run the *dacsObfuscatePassword* tool and set the ```PASSWORD``` parameter for you without a manual copy and set the password. The steps are as follows:
+Alternatively, you may create a shell script to run the *dacsObfuscatePassword* tool and set the ```PASSWORD``` parameter (and ```CLIENT_SECRET``` for V2 Authentication) for you without a manual copy and set the passwords. The steps are as follows:
 
 Firstly, create a shell script named ```getObfuscatePassword.sh``` in a ```script``` folder with the following content:
 
 ``` bash
 #!/bin/sh
 
+#V1
 #obfuscated password
 result=$(./dacsObfuscatePassword -e $RAW_PASSWORD)
 #get only obfuscated password from the result
 IFS=":" read -ra ADDR <<< $result
 #print result, just for checking
 #echo "obfuscated password is ${ADDR[1]}"
-echo "obfuscated RTO password success, setting it to environment variable named \$PASSWORD"
+echo "obfuscated RTO password V1 success, setting it to environment variable named \$PASSWORD"
 export PASSWORD=${ADDR[1]}
+
+
+#V2
+#obfuscated password
+result=$(./dacsObfuscatePassword -e $RAW_CLIENT_SECRET)
+#get only obfuscated password from the result
+IFS=":" read -ra ADDR <<< $result
+#print result, just for checking
+#echo "obfuscated password is ${ADDR[1]}"
+echo "obfuscated RTO Client Secret V2 success, setting it to environment variable named \$CLIENT_SECRET"
+export CLIENT_SECRET=${ADDR[1]}
 ```
+Please note that if you have only V1 or V2 Authentication, you must change the script above based on your preference.
 
 If you are using Docker, you can mount this script folder into a container via the following docker run command:
 
@@ -173,7 +192,7 @@ Then run the ```. ./script/getObfuscatePassword.sh``` command (please notice a s
 
 ![figure-9](images/09_obfuscated_pass_3.gif "obfuscated password")
 
-Now the ```PASSWORD``` parameter is ready for use with the testclient tool.
+Now the ```PASSWORD``` and ```CLIENT_ID``` parameters are ready for use with the testclient tool.
 
 ### Step 4: Run the testclient tool to test the RSSL connection
 
@@ -181,18 +200,18 @@ That brings us to running the testclient tool. You can run the testclient tool t
 
 #### RTO with Version 1 Authentication account
 
-To use with the Version 1 Authentication credential, the ```TOKENURL``` parameter must be *https://api.refinitiv.com/auth/oauth2/**v1**/token* URL endpoint and the ```authm``` parameter must be *oAuthPasswordGrant* value. Please note that the Version 1's username is the Machine ID account (GE-A-XXXXXXXX-X-XXXX).
+To use with the Version 1 Authentication credential, the ```TOKENURL_V1``` parameter must be *https://api.refinitiv.com/auth/oauth2/**v1**/token* URL endpoint and the ```authm``` parameter must be *oAuthPasswordGrant* value. Please note that the Version 1's username is the Machine ID account (GE-A-XXXXXXXX-X-XXXX).
 
 ``` bash
-$>testclient -S ELEKTRON_DD -il <ric name> -authm oAuthPasswordGrant -turl $TOKENURL -surl $SERVICEURL -sloc $LOCATION -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
+testclient -S ELEKTRON_DD -il <ric name> -authm oAuthPasswordGrant -turl $TOKENURL_V1 -surl $SERVICEURL -sloc $LOCATION -ct plugin -pluginName $REACTOR_PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
 ```
 
 #### RTO with Version 2 Authentication account
 
-To use with the Version 2 Authentication credential, the ```TOKENURL``` parameter must be *https://api.refinitiv.com/auth/oauth2/**v2**/token* URL endpoint and the ```authm``` parameter must be *oAuthClientCred* value. Please note that the Version 1's username is the Service ID account (GE-XXXXXXXXXXXX).
+To use with the Version 2 Authentication credential, the ```TOKENURL_V2``` parameter must be *https://api.refinitiv.com/auth/oauth2/**v2**/token* URL and the ```authm``` parameter must be *oAuthClientCred* value. Please note that the Version 2's username is the Service ID account (GE-XXXXXXXXXXXX).
 
 ``` bash
-$>testclient -S ELEKTRON_DD -il <ric name> -authm oAuthClientCred -turl $TOKENURL -surl $SERVICEURL -sloc $LOCATION -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
+testclient -S ELEKTRON_DD -il <ric name> -authm oAuthClientCred -turl $TOKENURL_2 -surl $SERVICEURL -sloc $LOCATION -ct plugin -pluginName $REACTOR_PLUGIN -u $CLIENT_ID -pw $CLIENT_SECRET -rtt -tss -tunnel ssl -I 1 -X -d 3
 ```
 Note: You can specify the RICs file name with ```-f <RICs file name>``` instead of ```-il <ric name>``` parameter.
 
@@ -203,7 +222,7 @@ I am demonstrating with the Version 2 Authentication account below::
 The commands above use the Service Discovery feature that dynamically connects the testclient tool to the RTO endpoint define in the ```LOCATION``` parameter. If you want to test a connection with a specific endpoint, you can set the endpoint via ```-h``` with RSSL port **14002** via ```-p``` parameters.
 
 ``` bash
-$>testclient -S ELEKTRON_DD -il <ric name> -authm oAuthClientCred -turl $TOKENURL -p 14002 -h <RTO RSSL Endpoint> -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
+testclient -S ELEKTRON_DD -il <ric name> -authm oAuthClientCred -turl $TOKENURL_V2 -p 14002 -h <RTO RSSL Endpoint> -ct plugin -pluginName $REACTOR_PLUGIN -u $CLIENT_ID -pw $CLIENT_SECRET -rtt -tss -tunnel ssl -I 1 -X -d 3
 ```
 ![figure-11](images/11_run_testclient_2.gif "run testclient with a specific endpoint")
 
@@ -213,16 +232,16 @@ That covers the RSSL connection test with RTO.
 
 ### Step 4.5: Run the testclient tool to test the WebSocket connection
 
-My next point is a WebSocket connection. You can just change the ```PLUGIN``` variable to **libwebSocketConnectionHandler.so** and then use the same testclient command to connect to the RTO WebSocket endpoint.
+My next point is a WebSocket connection. You can just change the testclient's ```-pluginName``` parameter to ```WEBSOCKET_PLUGIN``` (**libwebSocketConnectionHandler.so**)  and then use the same testclient command to connect to the RTO WebSocket endpoint.
 
 ``` bash
-$>export PLUGIN=libwebSocketConnectionHandler.so
+# $WEBSOCKET_PLUGIN=libwebSocketConnectionHandler.so
 
-# Connecting to Version 1 Authentication (TOKENURL=https://api.refinitiv.com/auth/oauth2/v1/token)
-$>testclient -S ELEKTRON_DD -il <ric name> -authm oAuthPasswordGrant -turl $TOKENURL -surl $SERVICEURL -sloc $LOCATION -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
+# V1
+testclient -S ELEKTRON_DD -il <ric name> -authm oAuthPasswordGrant -turl $TOKENURL_V1 -surl $SERVICEURL -sloc $LOCATION -ct plugin -pluginName $WEBSOCKET_PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
 
-# Connecting to Version 2 Authentication (TOKENURL=https://api.refinitiv.com/auth/oauth2/v2/token)
-$>testclient -S ELEKTRON_DD -il <ric name> -authm oAuthClientCred -turl $TOKENURL -surl $SERVICEURL -sloc $LOCATION -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
+# V2
+testclient -S ELEKTRON_DD -il <ric name> -authm oAuthClientCred -turl $TOKENURL_V2 -surl $SERVICEURL -sloc $LOCATION -ct plugin -pluginName $WEBSOCKET_PLUGIN -u $CLIENT_ID -pw $CLIENT_SECRET -rtt -tss -tunnel ssl -I 1 -X -d 3
 ```
 Note: Please see more detail about the different between Version 2 and Version 1 at *#Step 4* above
 
@@ -233,9 +252,9 @@ I am demonstrating the Version 2 authentication below
 If you want to test a connection with a specific WebSocket endpoint, you can set the endpoint via ```-h``` with WebSocket port **443** via ```-p``` parameters like the following example:
 
 ``` bash
-$>export PLUGIN=libwebSocketConnectionHandler.so
+# $WEBSOCKET_PLUGIN=libwebSocketConnectionHandler.so
 
-$>testclient -S ELEKTRON_DD -il <RIC name> -authm oAuthClientCred -turl $TOKENURL -p 443 -h <WebSocket Endpoint> -ct plugin -pluginName $PLUGIN -u $USERNAME -pw $PASSWORD -rtt -tss -tunnel ssl -I 1 -X -d 3
+testclient -S ELEKTRON_DD -il <RIC name> -authm oAuthClientCred -turl $TOKENURL_V2 -p 443 -h <WebSocket Endpoint> -ct plugin -pluginName $WEBSOCKET_PLUGIN -u $CLIENT_ID -pw $CLIENT_SECRET -rtt -tss -tunnel ssl -I 1 -X -d 3
 ```
 Note: RTO Hosts are based on each user's permission. Please check with your Refinitiv representative. To retrieve a valid list of RTO endpoints based on your assigned tier, refer to the DNS Names within the Current Endpoints section outlined in the [Refinitiv Real-Time - Optimized Installation and configuration for client use](https://developers.refinitiv.com/en/api-catalog/refinitiv-real-time-opnsrc/rt-sdk-java/documentation#refinitiv-real-time-optimized-install-and-config-guide) document.
 
