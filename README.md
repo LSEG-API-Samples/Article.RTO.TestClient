@@ -1,4 +1,4 @@
-# Testing Refinitiv Real-Time Optimized Connection with the TestClient Tool
+# Testing Real-Time Optimized Connection with the TestClient Tool
 - version: 2.0
 - Last update: March 2025
 - Environment: Windows/Linux
@@ -18,7 +18,7 @@ This article shows how to use the testclient tool to verify and test the RTO con
 
 So, I will start off with a brief detail of the testclient tool. The testclient tool (formerly known as rmdstestclient) is a general-purpose Real-Time consumer application. The tool is part of the Real-Time Demo Tools package (aka Infrastructure Tools). The testclient basic functionality is to load a list of RICs from a file (or input parameter) and request data of them from Real-Time Interactive Provider sources like the RTO, Real-Time Advanced Distribution Server (on-prem ADS), and Real-Time SDK OMM Provider. It supports various Real-Time connection types (RSSL, WebSocket, etc), and various Data Domain data (Market Price, Market By Price, Market By Order, etc). This tool is perfect for verifying the connection and subscription.
 
-![figure-0](images/01_connection_diagram.png "testclient tool can connect to any Refinitiv Real-Time data source providers")
+![figure-0](images/01_connection_diagram.png "testclient tool can connect to any Real-Time data source providers")
 
 You can download the tools package from [Developer Portal](https://developers.lseg.com/en/api-catalog/real-time-opnsrc/rt-sdk-cc/downloads#elekton-sdk-tools) and [https://myaccount.lseg.com](https://myaccount.lseg.com/en) websites. (Product family "MDS-Infra" and Products "Infrastructure Tools") websites.
 
@@ -329,11 +329,11 @@ For further details, please check out the following resources:
 
 * [Real-Time Market Data APIs & Distribution](https://developers.lseg.com/en/use-cases-catalog/real-time) page on the [LSEG Developers Community](https://developers.lseg.com/en/) website.
 * [WebSocket API](ttps://developers.lseg.com/en/api-catalog/real-time-opnsrc/websocket-api) page
-* [Changes to Customer Access and Identity Management: Refinitiv Real-Time - Optimized](https://developers.lseg.com/en/article-catalog/article/changes-to-customer-access-and-identity-management--refinitiv-re)
+* [Changes to Customer Access and Identity Management: Real-Time - Optimized](https://developers.lseg.com/en/article-catalog/article/changes-to-customer-access-and-identity-management--refinitiv-re)
 * [Infrastructure Tools Download page](https://developers.lseg.com/en/api-catalog/real-time-opnsrc/rt-sdk-cc/downloads#elekton-sdk-tools)
 * [Infrastructure Tools Download page at myaccount.lseg.com](https://myaccount.lseg.com/en)
 * [Infrastructure Tools Docker Hub page](https://hub.docker.com/r/lsegrealtime/infratools)
-* [Refinitiv Real-Time - Optimized Installation and configuration for client use](https://developers.lseg.com/en/api-catalog/real-time-opnsrc/websocket-api/documentation#refinitiv-real-time-optimized-install-and-config-guide) document
+* [Real-Time - Optimized Installation and configuration for client use](https://developers.lseg.com/en/api-catalog/real-time-opnsrc/websocket-api/documentation#refinitiv-real-time-optimized-install-and-config-guide) document
 * [How to test RTDS WebSocket connection with the testclient tool](https://developers.lseg.com/en/article-catalog/article/how-test-elektron-websocket-connection-rmdstestclient-tool) article
 * [Testing Real-time Streaming applications with Docker & Real-Time Connector (part 1)](https://developers.lseg.com/en/article-catalog/article/testing-real-time-apps-with-docker-and-real-time-connector) article
 * [Testing Real-time Streaming applications with Docker & Real-Time Connector (part 2)](https://developers.lseg.com/en/article-catalog/article/testing-real-time-apps-with-docker-and-real-time-connector-2) article
